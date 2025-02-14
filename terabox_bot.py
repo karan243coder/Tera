@@ -1,5 +1,6 @@
 import os
 import logging
+import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, CallbackContext
 from flask import Flask, request
@@ -19,13 +20,47 @@ application = ApplicationBuilder().token(token).build()
 async def start(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text('Welcome! Send me a TeraBox link to stream the video.')
 
+# Function to get configuration
+def get_config():
+    response = requests.get("https://teradl-api.dapuntaratya.com/get_config")
+    return response.json()
+
+# Function to generate file
+def generate_file(mode, url):
+    response = requests.post("https://teradl-api.dapuntaratya.com/generate_file", data={"mode": mode, "url": url})
+    return response.json()
+
+# Function to generate link
+def generate_link(mode, js_token, cookie, sign, timestamp, shareid, uk, fs_id):
+    response = requests.post("https://teradl-api.dapuntaratya.com/generate_link", data={
+        "mode": mode,
+        "js_token": js_token,
+        "cookie": cookie,
+        "sign": sign,
+        "timestamp": timestamp,
+        "shareid": shareid,
+        "uk": uk,
+        "fs_id": fs_id
+    })
+    return response.json()
+
 # Define a function to handle text messages (TeraBox links)
 async def handle_terabox_link(update: Update, context: CallbackContext) -> None:
     terabox_link = update.message.text
 
     if "terabox" in terabox_link:
-        video_player_link = f"https://bimbo69.netlify.app/?link={terabox_link}"
-        await update.message.reply_text(f'You can watch your video here: {video_player_link}')
+        # Example of using the API
+        config = get_config()
+        if config['status'] == 'success':
+            mode = config['service'][0]['params'][0]  # Example: get mode from config
+            file_response = generate_file(mode, terabox_link)
+            if file_response['status'] == 'success':
+                # Process the response and send a message back
+                await update.message.reply_text(f"File generated successfully: {file_response}")
+            else:
+                await update.message.reply_text("Failed to generate file.")
+        else:
+            await update.message.reply_text("Failed to get configuration.")
     else:
         await update.message.reply_text('Please send a valid TeraBox link.')
 
