@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 # Initialize the bot
-token = "7400491029:AAF5r3cfKWpP8aXjI683z3izeca1YLhGVXc"  # Replace with your actual token
+token = ""  # Replace with your actual token
 application = ApplicationBuilder().token(token).build()
 
 # Define a command handler for the /start command
