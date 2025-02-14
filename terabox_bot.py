@@ -45,4 +45,4 @@ updater.start_polling()
 
 # WSGI entry point
 if __name__ == '__main__':
-    app.run(port=8443)
+    app.run(port=8080)
