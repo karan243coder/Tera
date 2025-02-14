@@ -12,4 +12,4 @@ COPY terabox_bot.py ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Command to run the bot
-CMD ["bash", "start.sh"]
+CMD gunicorn app:app & python3 main.py
