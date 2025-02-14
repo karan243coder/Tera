@@ -1,11 +1,15 @@
 import os
 import logging
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext
+from flask import Flask, request
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Create a Flask application
+app = Flask(__name__)
 
 # Define a command handler for the /start command
 def start(update: Update, context: CallbackContext) -> None:
@@ -21,18 +25,24 @@ def handle_terabox_link(update: Update, context: CallbackContext) -> None:
     else:
         update.message.reply_text('Please send a valid TeraBox link.')
 
-def main() -> None:
-    # Get the bot token from the environment variable
-    token = os.getenv("TELEGRAM_TOKEN")
-    updater = Updater(token)
+# Create a function to handle incoming updates from Telegram
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    update = Update.de_json(request.get_json(force=True), updater.bot)
+    updater.dispatcher.process_update(update)
+    return 'ok'
 
-    dispatcher = updater.dispatcher
+# Initialize the bot
+token = os.getenv("TELEGRAM_TOKEN")
+updater = Updater(token)
 
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_terabox_link))
+# Register command handlers
+updater.dispatcher.add_handler(CommandHandler("start", start))
+updater.dispatcher.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_terabox_link))
 
-    updater.start_polling()
-    updater.idle()
+# Start the bot
+updater.start_polling()
 
+# WSGI entry point
 if __name__ == '__main__':
-    main()
+    app.run(port=8443)
