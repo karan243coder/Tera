@@ -1,0 +1,1 @@
+gunicorn app:app & python terabox_bot.py
