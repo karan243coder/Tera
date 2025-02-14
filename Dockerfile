@@ -12,4 +12,4 @@ COPY terabox_bot.py ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Command to run the bot
-CMD ["python", "terabox_bot.py"]
+CMD ["bash", "start.sh"]
