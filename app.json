@@ -1,0 +1,25 @@
+{
+  "name": "TeraBox Telegram Bot",
+  "description": "A Telegram bot that allows users to stream videos from TeraBox links.",
+  "keywords": ["telegram", "bot", "terabox", "video"],
+  "env": {
+    "TELEGRAM_TOKEN": {
+      "description": "Your Telegram bot token",
+      "required": true
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "pip install -r requirements.txt"
+  },
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  }
+}
